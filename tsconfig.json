@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "none",
+    "strict": true,
+    "outFile": "dist/app.js",
+    "rootDir": "src",
+    "removeComments": false,
+    "sourceMap": true,
+    "lib": ["ES2015", "DOM"]
+  },
+  "include": ["src/**/*.ts"],
+  "files": [
+    "src/models.ts",
+    "src/data.ts",
+    "src/stats.ts",
+    "src/app.ts"
+  ]
+}

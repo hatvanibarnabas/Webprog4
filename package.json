@@ -1,0 +1,14 @@
+{
+  "name": "webprog4-feladatkezelo",
+  "version": "1.0.0",
+  "description": "Webprog4 féléves feladat — Feladatkezelő (AngularJS 1.x + TypeScript + Bootstrap 5)",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && npx --yes serve -l 3000 .",
+    "serve": "npx --yes serve -l 3000 ."
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}

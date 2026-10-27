@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="hu" ng-app="feladatApp">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Feladatkezelő — Webprog4</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body ng-controller="TaskController">
+    <main class="app-shell">
+      <h1 class="app-brand">Feladatkezelő</h1>
+      <p class="app-lead">
+        Webprog4 féléves feladat — AngularJS 1.x · TypeScript · Bootstrap 5
+      </p>
+
+      <!-- Követelmény 6: számított értékek TS modulból -->
+      <section class="panel stats-bar" aria-label="Összesítők">
+        <div>
+          Feladatok: <strong>{{ tasks.length }}</strong>
+        </div>
+        <div>
+          Kész: <strong>{{ doneCount() }}</strong>
+        </div>
+        <div>
+          Haladás: <strong>{{ progressPercent() }}%</strong>
+        </div>
+        <div>
+          Becsült összidő: <strong>{{ totalMinutes() }} perc</strong>
+        </div>
+      </section>
+
+      <p class="flash" aria-live="polite">{{ flashMessage }}</p>
+
+      <!-- Követelmény 5: valós idejű, case-insensitive szűrés -->
+      <!-- Követelmény 3: Enter (ng-keyup) esemény -->
+      <section class="panel">
+        <label class="form-label fw-semibold" for="filterInput">Szűrés / keresés</label>
+        <div class="input-group">
+          <input
+            id="filterInput"
+            type="search"
+            class="form-control"
+            placeholder="Cím, leírás, státusz… (Enter = találatok száma)"
+            ng-model="filterText"
+            ng-keyup="onFilterKeyup($event)"
+          />
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            ng-click="clearFilter()"
+            ng-disabled="!filterText"
+          >
+            Törlés
+          </button>
+        </div>
+        <!-- Követelmény 4: interpoláció — a modell legalább két helyen -->
+        <p class="task-meta mt-2 mb-0">
+          Aktív szűrő: <em>{{ filterText || "(nincs)" }}</em>
+          · megjelenítve: {{ filteredTasks().length }} / {{ tasks.length }}
+        </p>
+      </section>
+
+      <!-- Követelmény 2 + 7: űrlap, validáció, disabled submit -->
+      <section class="panel">
+        <h2 class="h5 mb-3">
+          {{ editingId !== null ? "Feladat szerkesztése" : "Új feladat" }}
+        </h2>
+        <form name="taskForm" ng-submit="submitForm()" novalidate>
+          <div class="mb-3">
+            <label class="form-label" for="title">Cím (min. 3 karakter) *</label>
+            <input
+              id="title"
+              name="title"
+              type="text"
+              class="form-control"
+              ng-model="form.title"
+              ng-required="true"
+              ng-minlength="3"
+              maxlength="80"
+            />
+            <div
+              class="invalid-hint"
+              ng-show="taskForm.title.$touched && taskForm.title.$invalid"
+            >
+              Adj meg legalább 3 karakteres címet.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="description">Leírás</label>
+            <textarea
+              id="description"
+              name="description"
+              class="form-control"
+              rows="2"
+              ng-model="form.description"
+              maxlength="200"
+            ></textarea>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label" for="priority">Prioritás</label>
+              <select
+                id="priority"
+                class="form-select"
+                ng-model="form.priority"
+              >
+                <option value="low">Alacsony</option>
+                <option value="medium">Közepes</option>
+                <option value="high">Magas</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="status">Státusz</label>
+              <select id="status" class="form-select" ng-model="form.status">
+                <option value="todo">Teendő</option>
+                <option value="doing">Folyamatban</option>
+                <option value="done">Kész</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="minutes">Becsült perc *</label>
+              <input
+                id="minutes"
+                name="minutes"
+                type="number"
+                class="form-control"
+                ng-model="form.estimatedMinutes"
+                ng-required="true"
+                min="1"
+                max="999"
+              />
+              <div
+                class="invalid-hint"
+                ng-show="taskForm.minutes.$touched && taskForm.minutes.$invalid"
+              >
+                Pozitív szám kell (legalább 1).
+              </div>
+            </div>
+          </div>
+
+          <!-- Követelmény 4: two-way binding élő előnézet -->
+          <div class="preview-box mb-3">
+            Előnézet:
+            <strong>{{ form.title || "…" }}</strong>
+            — {{ priorityLabel(form.priority) }},
+            {{ statusLabel(form.status) }},
+            {{ form.estimatedMinutes || "?" }} perc
+            <span ng-if="form.description"> · {{ form.description }}</span>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2">
+            <button
+              type="submit"
+              class="btn btn-success"
+              ng-disabled="taskForm.$invalid || !isFormValid()"
+            >
+              {{ editingId !== null ? "Mentés" : "Hozzáadás" }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              ng-click="cancelEdit()"
+              ng-if="editingId !== null"
+            >
+              Mégse
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Követelmény 1: lista TypeScript adatból, AngularJS render -->
+      <!-- Követelmény 8: ng-class dinamikus stílus -->
+      <section class="panel">
+        <h2 class="h5 mb-3">Feladatlista</h2>
+        <div ng-if="filteredTasks().length === 0" class="text-muted">
+          Nincs megjeleníthető feladat.
+        </div>
+        <article
+          class="task-item"
+          ng-repeat="task in filteredTasks() track by task.id"
+          ng-class="rowClass(task)"
+        >
+          <div class="d-flex flex-wrap justify-content-between gap-2 align-items-start">
+            <div>
+              <p class="task-title">{{ task.title }}</p>
+              <p class="task-meta mb-1" ng-if="task.description">
+                {{ task.description }}
+              </p>
+              <p class="task-meta mb-0">
+                <span class="badge" ng-class="badgeClass(task)">
+                  {{ statusLabel(task.status) }}
+                </span>
+                · {{ priorityLabel(task.priority) }}
+                · {{ task.estimatedMinutes }} perc
+              </p>
+            </div>
+            <div class="btn-group btn-group-sm">
+              <!-- Követelmény 3: ng-click események -->
+              <button
+                type="button"
+                class="btn btn-outline-primary"
+                ng-click="toggleDone(task)"
+                title="Kész / teendő váltás"
+              >
+                {{ task.status === 'done' ? "Újranyit" : "Kész" }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                ng-click="startEdit(task)"
+              >
+                Szerkeszt
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-danger"
+                ng-click="removeTask(task)"
+              >
+                Töröl
+              </button>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script
+      src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+    <script src="dist/app.js"></script>
+  </body>
+</html>

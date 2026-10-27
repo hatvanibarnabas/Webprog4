@@ -1,0 +1,131 @@
+:root {
+  --bg-top: #e8f1f8;
+  --bg-bottom: #f7fafc;
+  --ink: #1a2b3c;
+  --accent: #0d6e6e;
+  --accent-soft: #d4efef;
+  --line: #c5d4e0;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse 80% 50% at 10% -10%, #c8e0f0 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 100% 0%, #d4efef 0%, transparent 50%),
+    linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+  font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+}
+
+.app-shell {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem;
+}
+
+.app-brand {
+  font-size: clamp(1.75rem, 4vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+  margin: 0 0 0.25rem;
+}
+
+.app-lead {
+  color: #4a6174;
+  margin-bottom: 1.5rem;
+}
+
+.panel {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.stats-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  align-items: baseline;
+}
+
+.stats-bar strong {
+  color: var(--accent);
+}
+
+/* Követelmény 8: dinamikus stílus adat alapján */
+.task-item {
+  border-left: 4px solid transparent;
+  padding: 0.75rem 0.85rem;
+  margin-bottom: 0.5rem;
+  background: #fff;
+  border-radius: 0.35rem;
+  border: 1px solid var(--line);
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.task-item.priority-high {
+  border-left-color: #dc3545;
+}
+
+.task-item.priority-medium {
+  border-left-color: #ffc107;
+}
+
+.task-item.priority-low {
+  border-left-color: #6c757d;
+}
+
+.task-item.task-doing {
+  background: #f0f7ff;
+}
+
+.task-item.task-done {
+  opacity: 0.72;
+  background: #f3f6f4;
+}
+
+.task-item.task-done .task-title {
+  text-decoration: line-through;
+  color: #6a7a88;
+}
+
+.task-title {
+  font-weight: 600;
+  margin: 0;
+}
+
+.task-meta {
+  font-size: 0.875rem;
+  color: #5a6d7c;
+}
+
+.preview-box {
+  background: var(--accent-soft);
+  border-radius: 0.35rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+}
+
+.flash {
+  min-height: 1.5rem;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.ng-invalid.ng-touched {
+  border-color: #dc3545 !important;
+}
+
+.was-validated .form-control:invalid,
+.form-control.ng-invalid.ng-touched {
+  border-color: #dc3545;
+}
+
+.invalid-hint {
+  color: #dc3545;
+  font-size: 0.8rem;
+}
